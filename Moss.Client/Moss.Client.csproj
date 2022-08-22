@@ -10,6 +10,21 @@
     <Description>Client for Stanford Moss.
 Moss is not a system for completely automatically detecting plagiarism. Plagiarism is a statement that someone copied code deliberately without attribution, and while Moss automatically detects program similarity, it has no way of knowing why codes are similar.</Description>
     <AnalysisLevel>6.0-all</AnalysisLevel>
+    <RepositoryUrl>https://github.com/TeymurZeynally/MossClient</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/TeymurZeynally/MossClient</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+	 <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>

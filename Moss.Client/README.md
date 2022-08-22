@@ -25,22 +25,3 @@ client.AddFile(File.ReadAllBytes("/path/to/file2.cpp"), fileDisplayName: "/path/
 
 var result = client.Submit();
 ```
-
-# Moss.Report.Client
-Moss.Report.Client is a library for downloading and parsing a report with analysis results. The client downloads the report from the link, parses it and presents it as a structure.
-
-## Installation 
-
-```shell
-Install-Package Moss.Report.Client
-```
-
-## Usage 
-
-```csharp
-using var clientHandler = new HttpClientHandler();
-using var httpClient = new HttpClient(clientHandler);
-var reportClient = new MossReportClient(httpClient);
-
-var report = await reportClient.GetReport("http://moss.stanford.edu/results/...").ConfigureAwait(false);
-```
