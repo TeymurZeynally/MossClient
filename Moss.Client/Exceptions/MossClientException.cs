@@ -2,9 +2,17 @@
 
 namespace Moss.Client.Exceptions
 {
-	internal class MossClientException : Exception
+	public class MossClientException : Exception
 	{
+		public MossClientException()
+		{
+		}
+
 		public MossClientException(string message): base(message)
+		{
+		}
+
+		public MossClientException(string message, Exception innerException) : base(message, innerException)
 		{
 		}
 	}

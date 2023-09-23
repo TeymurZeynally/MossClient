@@ -57,31 +57,38 @@ namespace Moss.Client
 		/// Submits request and receives report url
 		/// </summary>
 		/// <returns>Report Url</returns>
-		/// <exception cref="MossClientException">Thrown if the server did not return report Url</exception>
+		/// <exception cref="MossClientException">Thrown if there is problem with communication with server or it did not return report Url</exception>
 		public Uri Submit()
 		{
-			var ipe = new IPEndPoint(Dns.GetHostEntry(_options.Server).AddressList.First(), _options.Port);
-			using var socket = new Socket(ipe.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-			socket.Connect(ipe);
+			try
+			{
+				var ipe = new IPEndPoint(Dns.GetHostEntry(_options.Server).AddressList.First(), _options.Port);
+				using var socket = new Socket(ipe.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+				socket.Connect(ipe);
 
-			SendOption(socket, new KeyValuePair<string, string>("moss", _userId.ToString(CultureInfo.InvariantCulture)));
-			SendOption(socket, new KeyValuePair<string, string>("directory", _options.IsDirectoryMode ? "1" : "0"));
-			SendOption(socket, new KeyValuePair<string, string>("X", _options.IsBetaRequest ? "1" : "0"));
-			SendOption(socket, new KeyValuePair<string, string>("maxmatches", _options.MaxMatches.ToString(CultureInfo.InvariantCulture)));
-			SendOption(socket, new KeyValuePair<string, string>("show", _options.NumberOfResultsToShow.ToString(CultureInfo.InvariantCulture)));
+				SendOption(socket, new KeyValuePair<string, string>("moss", _userId.ToString(CultureInfo.InvariantCulture)));
+				SendOption(socket, new KeyValuePair<string, string>("directory", _options.IsDirectoryMode ? "1" : "0"));
+				SendOption(socket, new KeyValuePair<string, string>("X", _options.IsBetaRequest ? "1" : "0"));
+				SendOption(socket, new KeyValuePair<string, string>("maxmatches", _options.MaxMatches.ToString(CultureInfo.InvariantCulture)));
+				SendOption(socket, new KeyValuePair<string, string>("show", _options.NumberOfResultsToShow.ToString(CultureInfo.InvariantCulture)));
 
-			var index = 0;
-			_baseFiles.ForEach(f => SendFile(socket, index, f.File, f.Language, f.DisplayName));
-			_files.ForEach(f => SendFile(socket, ++index, f.File, f.Language, f.DisplayName));
+				var index = 0;
+				_baseFiles.ForEach(f => SendFile(socket, index, f.File, f.Language, f.DisplayName));
+				_files.ForEach(f => SendFile(socket, ++index, f.File, f.Language, f.DisplayName));
 
-			SendOption(socket, new KeyValuePair<string, string>("query 0", _options.Comment.ToString(CultureInfo.InvariantCulture)));
+				SendOption(socket, new KeyValuePair<string, string>("query 0", _options.Comment.ToString(CultureInfo.InvariantCulture)));
 
-			var bytes = new byte[1024];
-			socket.Receive(bytes);
+				var bytes = new byte[1024];
+				socket.Receive(bytes);
 
-			SendOption(socket, new KeyValuePair<string, string>("end", string.Empty));
+				SendOption(socket, new KeyValuePair<string, string>("end", string.Empty));
 
-			return Uri.TryCreate(Encoding.UTF8.GetString(bytes).Trim('\0'), UriKind.Absolute, out var uri) ? uri : throw new MossClientException("Unable to get Url");
+				return Uri.TryCreate(Encoding.UTF8.GetString(bytes).Trim('\0'), UriKind.Absolute, out var uri) ? uri : throw new MossClientException("Unable to get Url");
+			}
+			catch (SocketException exception)
+			{
+				throw new MossClientException("Unable to communicate with moss", exception);
+			}
 		}
 
 		private void SendOption(Socket socket, KeyValuePair<string, string> pair)
